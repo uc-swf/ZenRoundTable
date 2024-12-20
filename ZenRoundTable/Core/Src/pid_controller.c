@@ -45,12 +45,12 @@ float digPIDControl(float r,float w, pid_params_t *pidparams){
 
 int timeTick(uint32_t tick, uint32_t *last_time){
 
-	if (*last_time==0){
-		*last_time=HAL_GetTick();
+	if ( (*last_time)==0){
+		(*last_time)=HAL_GetTick();
 	}
 
 	if ( (HAL_GetTick()-*last_time) >= tick ){
-		*last_time=HAL_GetTick();
+		(*last_time)=HAL_GetTick();
 		return 1;
 	} else {
 		return 0;

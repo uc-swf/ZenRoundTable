@@ -5,7 +5,7 @@
  *      Author: steff
  */
 
-#include <sd_thr.h>
+#include <file_thr.h>
 #include "main.h"
 #include "fatfs.h"
 #include <string.h>
@@ -15,18 +15,19 @@
 FATFS FatFs;
 FRESULT fres;
 FILINFO fno;
+FIL fd_write;
 DIR dir;
 int nfile,ndir;
 char *path;
 
-void mountSDCard(){
+uint8_t file_mount(){
 
   HAL_Delay(1000);
 
   fres = f_mount(&FatFs, "", 1);
   if (fres != FR_OK) {
 	  debugPrint(DEBUG_THR,"mountSDCard: f_mount error (%i)\r\n", fres);
-	while(1);
+	return 1;
   }
 //  DWORD free_clusters, free_sectors, total_sectors;
 //  FATFS* getFreeFs;
@@ -38,14 +39,15 @@ void mountSDCard(){
 //  total_sectors = (getFreeFs->n_fatent - 2) * getFreeFs->csize;
 //  free_sectors = free_clusters * getFreeFs->csize;
 //  debugPrint(DEBUG_THR,"mountSDCard: SD card stats:\r\n%10lu KiB total drive space.\r\n%10lu KiB available.\r\n", total_sectors / 2, free_sectors / 2);
+  return 0;
 }
 
-void unmount_sd(){
+void file_umount(){
 	  f_mount(NULL, "", 0);
 	  debugPrint(DEBUG_THR,"unmount_sd: Done...");
 }
 
-files list_files(){
+files file_list(){
 
 	files ret;
 	path = "";
@@ -84,7 +86,7 @@ files list_files(){
     return ret;
 }
 
-enum stateReadThrFile openThrFile( TCHAR filename[13],FIL* fileObject){
+enum stateReadThrFile file_open_thr( TCHAR filename[13],FIL* fileObject){
 
 	FRESULT fres = f_open(fileObject, filename, FA_READ);
 	if (fres != FR_OK) {
@@ -97,7 +99,7 @@ enum stateReadThrFile openThrFile( TCHAR filename[13],FIL* fileObject){
 
 }
 
-enum stateReadThrFile readThrHeader(BYTE* readBuffer, FIL* fileObject, BYTE* textHeader){
+enum stateReadThrFile file_thr_header(BYTE* readBuffer, FIL* fileObject, BYTE* textHeader){
 
 	const int startLineHeader=1;
 	const int endLineHeader=5;
@@ -170,7 +172,7 @@ thrValues_t readThrValuesPerLine(BYTE* readBuffer, FIL* fileObject){
 	return readValues;
 }
 
-enum stateReadThrFile closeThrFile(FIL* fileObject){
+enum stateReadThrFile file_close(FIL* fileObject){
 
 	f_close(fileObject);
 	debugPrint(DEBUG_THR,"closeThrFile: File closed \r\n");
@@ -178,3 +180,38 @@ enum stateReadThrFile closeThrFile(FIL* fileObject){
 
 }
 
+
+void file_write_open(char* fname)
+{
+
+	  fres = f_open(&fd_write, "EmbeTronicX.txt", FA_WRITE | FA_READ | FA_CREATE_ALWAYS);
+
+	  if(fres != FR_OK)
+	  {
+		  f_close(&fd_write);
+		  userMessage("File creation/open Error : (%i)\r\n", fres);
+		  return;
+	  }
+}
+
+void file_write_line(char* line)
+{
+	int16_t err;
+
+//	if (fd_write==0)
+//	{
+//		userMessage("File not Open");
+//		return;
+//	}
+	err = f_puts(line, &fd_write);
+
+	if (err)
+	{
+		userMessage("Error writing");
+	}
+}
+
+void file_write_close()
+{
+	f_close(&fd_write);
+}

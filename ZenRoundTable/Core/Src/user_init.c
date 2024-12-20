@@ -4,17 +4,19 @@
  */
 
 
+#include <file_thr.h>
 #include <scara_robot.h>
-#include <sd_thr.h>
 #include <stdio.h>
 #include <user_init.h>
 #include "main.h"
+#include "leds.h"
+#include "error.h"
 
 extern TIM_HandleTypeDef htim4;
 extern TIM_HandleTypeDef htim3;
 extern TIM_HandleTypeDef htim2;
 
-void init()
+void user_init()
 {
 
 	// Start PWM-Mode in Timer 4
@@ -30,16 +32,21 @@ void init()
 	HAL_TIM_Encoder_Start_IT(&htim3,TIM_CHANNEL_1);
 	HAL_TIM_Encoder_Start_IT(&htim2,TIM_CHANNEL_1);
 
+	ledring_init();
+
 	// Mount SD-Card with thr-Files
-	mountSDCard();
-	HAL_Delay(1000);
+	if (file_mount()!=0)  // !=0 -> Error
+	{
+		error(ERROR_SDMOUNT);
+	}
+	HAL_Delay(100);
 
 	// Stop Motors
-	stopScaraRobot();
+	scara_stop_all();
 
 	//Enable Bluetooth
 	HAL_GPIO_WritePin(BT_PWR_GPIO_Port,BT_PWR_Pin,GPIO_PIN_SET);
-	HAL_Delay(1000);
+	HAL_Delay(100);
 
 	debugPrint(DEBUG_MAIN,"init: Done...\r\n");
 }

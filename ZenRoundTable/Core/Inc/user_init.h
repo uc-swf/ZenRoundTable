@@ -8,6 +8,6 @@
 #ifndef SRC_INIT_H_
 #define SRC_INIT_H_
 
-void init();
+void user_init();
 
 #endif /* SRC_INIT_H_ */

@@ -104,7 +104,7 @@ void userMessage(const char *message, ...);
 #define DEBUG_THR 0		// config-bit for Debug-Messages from processing THR-Files
 #define DEBUG_ROBOT 0	// config-bit for Debug-Messages from SCARA-Robot and Motors
 #define DEBUG_PID 0		// config-bit for Debug-Messages from the PID-Controller
-#define DEBUG_MANUAL 0	// config-bit for Debug-Messages from Manual-Mode
+#define DEBUG_MANUAL 1	// config-bit for Debug-Messages from Manual-Mode
 #define DEBUG_COM 0		// config-bit for Debug-Messages from Communication
 /* USER CODE END Private defines */
 
